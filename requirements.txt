@@ -1,0 +1,12 @@
+stable-baselines3[extra]>=2.3.0
+gymnasium[atari]>=0.29.0
+ale-py>=0.9.0
+opencv-python>=4.9.0
+matplotlib>=3.8.0
+numpy>=1.26.0
+torch>=2.2.0
+tensorboard>=2.16.0
+imageio>=2.34.0
+imageio[ffmpeg]
+typeguard
+pyyaml

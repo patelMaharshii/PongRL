@@ -1,0 +1,8 @@
+__pycache__/
+**/__pycache__
+.vscode/
+repomix-output.xml
+*.mp4
+*.zip
+!models/best/best_model.zip
+logs/
