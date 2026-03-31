@@ -4,5 +4,5 @@ __pycache__/
 repomix-output.xml
 *.mp4
 *.zip
-!models/best/best_model.zip
+!models/best/best_model_first_phase.zip
 logs/

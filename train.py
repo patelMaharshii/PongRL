@@ -18,6 +18,8 @@ Monitor training:
 import argparse
 import os
 import glob
+import signal
+import sys
 
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import (
@@ -25,6 +27,7 @@ from stable_baselines3.common.callbacks import (
     EvalCallback,
 )
 
+import torch
 from config import Config
 from utils.wrappers import make_env, make_eval_env
 
@@ -84,6 +87,7 @@ def main() -> None:
         model = PPO(
             policy         = "CnnPolicy",
             env            = train_env,
+            device="cuda" if torch.cuda.is_available() else "cpu",
             learning_rate  = cfg.LEARNING_RATE,
             n_steps        = cfg.N_STEPS,
             batch_size     = cfg.BATCH_SIZE,
@@ -101,6 +105,17 @@ def main() -> None:
 
     print(f"[train] Policy network:\\n{model.policy}")
     print(f"[train] Training for {total_steps:,} timesteps with {cfg.N_ENVS} envs...")
+
+    # ── Graceful shutdown on Ctrl+C ──────────────────────────────────────
+    def _save_and_exit(sig, frame):
+        print("\n\n[Interrupted] Saving current model before exit...")
+        interrupted_path = os.path.join(cfg.MODEL_DIR, "ppo_pong_interrupted")
+        model.save(interrupted_path)
+        print(f"[Saved] → {interrupted_path}.zip")
+        print(f"[Steps completed] {model.num_timesteps:,}")
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, _save_and_exit)
 
     # ── Train ─────────────────────────────────────────────────────────────────
     model.learn(
