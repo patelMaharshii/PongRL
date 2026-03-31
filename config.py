@@ -6,7 +6,7 @@ Edit this file before running train.py or evaluate.py.
 
 class Config:
     # ── Environment ───────────────────────────────────────────────────────────
-    ENV_ID        = "ALE/Pong-v5"   # Legacy env with no auto frame-skip
+    ENV_ID        = "ALE/Pong-v5"   
     N_ENVS        = 8                      # Parallel environments for rollout
     N_STACK       = 4                      # Frames to stack per observation
     SEED          = 42
@@ -39,3 +39,8 @@ class Config:
     RECORD_VIDEO   = True          # Save an MP4 of the evaluation run
     VIDEO_PATH     = "./eval_video.mp4"
     VIDEO_FPS      = 30
+
+    # === Difficulty (Phase 2) ===
+    DIFFICULTY = 2       # 0 (easiest) → 3 (hardest opponent)
+    MODE       = 0       # 0 = standard Pong, 1 = squash/wall variant
+    REPEAT_ACTION_PROB = 0.0  # default sticky actions; raise to ~0.5 for more chaos
