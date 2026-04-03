@@ -9,3 +9,4 @@ repomix-output.xml
 !models/best/best_model_third_phase.zip
 !models/best/best_model_fourth_phase.zip
 logs/
+metrics/
