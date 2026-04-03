@@ -1,46 +1,57 @@
 """
-Central configuration for all hyperparameters and paths.
-Edit this file before running train.py or evaluate.py.
+Central configuration for PPO Pong curriculum/direct comparison experiments.
 """
 
 
 class Config:
     # ── Environment ───────────────────────────────────────────────────────────
-    ENV_ID        = "ALE/Pong-v5"   
-    N_ENVS        = 8                      # Parallel environments for rollout
-    N_STACK       = 4                      # Frames to stack per observation
-    SEED          = 42
+    ENV_ID  = "ALE/Pong-v5"
+    N_ENVS  = 8
+    N_STACK = 4
+    SEED    = 42
 
     # ── PPO Hyperparameters ───────────────────────────────────────────────────
     LEARNING_RATE = 2.5e-4
-    N_STEPS       = 128      # Steps collected per env per rollout
-    BATCH_SIZE    = 256      # Minibatch size (N_STEPS * N_ENVS must be divisible)
-    N_EPOCHS      = 4        # Gradient update passes per rollout
-    GAMMA         = 0.99     # Discount factor
-    GAE_LAMBDA    = 0.95     # GAE bias-variance trade-off
-    CLIP_RANGE    = 0.1      # PPO clipping epsilon (tighter than default 0.2)
-    ENT_COEF      = 0.01     # Entropy bonus to encourage exploration
-    VF_COEF       = 0.5      # Value-function loss weight
-    MAX_GRAD_NORM = 0.5      # Gradient clipping threshold
+    N_STEPS       = 128
+    BATCH_SIZE    = 256
+    N_EPOCHS      = 4
+    GAMMA         = 0.99
+    GAE_LAMBDA    = 0.95
+    CLIP_RANGE    = 0.1
+    ENT_COEF      = 0.01
+    VF_COEF       = 0.5
+    MAX_GRAD_NORM = 0.5
 
-    # ── Training ──────────────────────────────────────────────────────────────
-    TOTAL_TIMESTEPS   = 10_000_000
-    EVAL_FREQ         = 50_000     # Evaluate every N env steps
-    N_EVAL_EPISODES   = 10         # Episodes per evaluation checkpoint
+    # ── Training / evaluation cadence ────────────────────────────────────────
+    TOTAL_TIMESTEPS   = 25_000_000
+    EVAL_FREQ         = 50_000
+    N_EVAL_EPISODES   = 10
     CHECKPOINT_FREQ   = 50_000
 
-    # ── Paths ──────────────────────────────────────────────────────────────────
+    # ── Difficulty defaults ───────────────────────────────────────────────────
+    MODE                = 0
+    REPEAT_ACTION_PROB  = 0.25
+
+    # ── Adaptive curriculum settings ──────────────────────────────────────────
+    CURRICULUM_LEVELS       = [0, 1, 2, 3]
+    CURRICULUM_THRESHOLD    = 15.0
+    CURRICULUM_STREAK       = 2          # consecutive evals above threshold
+    CURRICULUM_MIN_STEPS    = 2_000_000  # minimum steps at a difficulty before advancing
+    CURRICULUM_MAX_STEPS    = 10_000_000 # force-advance cap per difficulty
+    CURRICULUM_TARGET_DIFF  = 3
+
+    # ── Evaluation suite ──────────────────────────────────────────────────────
+    EVAL_EPISODES      = 30
+    RECORD_VIDEO       = True
+    VIDEO_PATH         = "./eval_video.mp4"
+    VIDEO_FPS          = 30
+    ROBUST_RAPS        = [0.0, 0.25, 0.5]
+    CROSS_DIFFICULTIES = [0, 1, 2, 3]
+    CROSS_MODES        = [0, 1]
+
+    # ── Paths ─────────────────────────────────────────────────────────────────
     MODEL_DIR      = "./models"
     BEST_MODEL_DIR = "./models/best"
     LOG_DIR        = "./logs"
-
-    # ── Evaluation ────────────────────────────────────────────────────────────
-    EVAL_EPISODES  = 5             # Episodes to run during evaluate.py
-    RECORD_VIDEO   = True          # Save an MP4 of the evaluation run
-    VIDEO_PATH     = "./eval_video.mp4"
-    VIDEO_FPS      = 30
-
-    # === Difficulty (Phase 2) ===
-    DIFFICULTY = 2       # 0 (easiest) → 3 (hardest opponent)
-    MODE       = 0       # 0 = standard Pong, 1 = squash/wall variant
-    REPEAT_ACTION_PROB = 0.0  # default sticky actions; raise to ~0.5 for more chaos
+    METRICS_DIR    = "./metrics"
+    REPORT_DIR     = "./reports"

@@ -1,14 +1,4 @@
-"""
-Environment factory helpers.
-
-- make_env()       → vectorised + frame-stacked training env (no rendering)
-- make_eval_env()  → single env with rgb_array rendering for visualisation
-
-Both accept ALE difficulty knobs:
-  difficulty            int   0–3   opponent paddle speed (0 = easiest)
-  mode                  int   0–1   game variant (0 = standard, 1 = squash)
-  repeat_action_prob    float 0–1   sticky-action probability (0 = deterministic)
-"""
+"""Environment factory helpers for Atari Pong experiments."""
 
 import ale_py
 import gymnasium as gym
@@ -27,17 +17,6 @@ def make_env(
     mode: int = 0,
     repeat_action_probability: float = 0.25,
 ) -> VecFrameStack:
-    """
-    Creates a vectorised, preprocessed Atari environment for training.
-
-    SB3's make_atari_env automatically applies:
-      - NoopResetEnv     (random no-ops on reset for stochasticity)
-      - MaxAndSkipEnv    (frame-skip k=4, max-pool last 2 frames)
-      - EpisodicLifeEnv  (life loss = episode end for credit assignment)
-      - FireResetEnv     (press FIRE on reset where required)
-      - WarpFrame        (resize to 84x84 grayscale)
-      - ClipRewardEnv    (clip rewards to [-1, +1])
-    """
     env = make_atari_env(
         env_id,
         n_envs=n_envs,
@@ -61,10 +40,6 @@ def make_eval_env(
     mode: int = 0,
     repeat_action_probability: float = 0.25,
 ) -> VecFrameStack:
-    """
-    Creates a single, preprocessed Atari environment for evaluation.
-    If render=True, uses rgb_array mode so frames can be grabbed by evaluate.py.
-    """
     render_mode = "rgb_array" if render else None
     env = make_atari_env(
         env_id,
