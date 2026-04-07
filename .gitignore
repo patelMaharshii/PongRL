@@ -11,5 +11,4 @@ repomix-output.xml
 !models/best/direct_seed44_best.zip
 models/ppo_pong_direct_seedd44*.zip
 logs/
-metrics/
 venv/
