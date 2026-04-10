@@ -1,0 +1,4 @@
+train_step,method,seed,current_difficulty,target_difficulty_steps,eval_difficulty,eval_mode,eval_rap,mean_reward,std_reward,win_rate,threshold_hit,stage_steps,stage_index
+50000,curriculum,44,0,0,0,0,0.25,-21.0,0.0,0.0,0,50000,0
+100000,curriculum,44,0,0,0,0,0.25,-21.0,0.0,0.0,0,100000,0
+150000,curriculum,44,0,0,0,0,0.25,-21.0,0.0,0.0,0,150000,0

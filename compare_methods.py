@@ -24,7 +24,7 @@ def parse_args() -> argparse.Namespace:
 def auc(xs, ys):
     if len(xs) < 2:
         return np.nan
-    return float(np.trapz(ys, xs))
+    return float(np.trapezoid(ys, xs))
 
 
 def first_threshold_step(df: pd.DataFrame, threshold: float, step_col: str = "train_step"):

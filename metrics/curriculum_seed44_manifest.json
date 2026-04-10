@@ -1,0 +1,20 @@
+{
+  "event": "training_start",
+  "method": "curriculum",
+  "seed": 44,
+  "num_timesteps": 0,
+  "current_difficulty": 0,
+  "stage_index": 0,
+  "stage_start_t": 0,
+  "target_difficulty_steps": 0,
+  "threshold": 15.0,
+  "streak": 0,
+  "levels": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "mode": 0,
+  "rap": 0.25
+}
