@@ -1,4 +1,7 @@
 method,seed,auc_target_reward,time_to_threshold_total,time_to_threshold_target,final_target_reward,final_target_win_rate,jumpstart_target_reward
 curriculum,42,245847500.0,11100000.0,250000.0,17.4,1.0,8.5
+curriculum,43,240257500.0,11450000.0,400000.0,17.0,1.0,9.3
+curriculum,44,170387500.0,15450000.0,600000.0,18.6,1.0,10.5
 direct,42,49797500.0,4400000.0,50000.0,17.6,1.0,-21.0
 direct,43,48202500.0,2000000.0,250000.0,17.1,1.0,-21.0
+direct,44,43202500.0,4000000.0,500000.0,17.5,1.0,-21.0
