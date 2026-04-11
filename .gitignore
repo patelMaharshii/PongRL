@@ -9,6 +9,7 @@ repomix-output.xml
 !models/best/best_model_third_phase.zip
 !models/best/best_model_fourth_phase.
 !models/best/direct_seed44_best.zip
+!models/ppo_pong_direct_seed44_final.zip
 models/ppo_pong_direct_seedd44*.zip
 logs/
 venv/
