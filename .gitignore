@@ -5,3 +5,6 @@ repomix-output.xml
 *.mp4
 *.zip
 logs/
+metrics/
+venv/
+models/best/
