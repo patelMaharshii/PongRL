@@ -1,0 +1,5 @@
+,seed,seed,seed,auc_target_reward,auc_target_reward,auc_target_reward,time_to_threshold_total,time_to_threshold_total,time_to_threshold_total,time_to_threshold_target,time_to_threshold_target,time_to_threshold_target,final_target_reward,final_target_reward,final_target_reward,final_target_win_rate,final_target_win_rate,final_target_win_rate,jumpstart_target_reward,jumpstart_target_reward,jumpstart_target_reward
+,mean,std,count,mean,std,count,mean,std,count,mean,std,count,mean,std,count,mean,std,count,mean,std,count
+method,,,,,,,,,,,,,,,,,,,,,
+curriculum,43.0,1.0,3,218830833.33333334,42046158.36593557,3,12666666.666666666,2416781.60646206,3,416666.6666666667,175594.2292142123,3,17.666666666666668,0.8326663997864536,3,1.0,0.0,3,9.433333333333334,1.0066445913694333,3
+direct,43.0,1.0,3,47067500.0,3440882.8808897287,3,3466666.6666666665,1285820.1014657274,3,266666.6666666667,225462.4876411447,3,17.400000000000002,0.26457513110645864,3,1.0,0.0,3,-21.0,0.0,3

@@ -1,0 +1,20 @@
+{
+  "event": "training_end",
+  "method": "direct",
+  "seed": 43,
+  "num_timesteps": 25000960,
+  "current_difficulty": 3,
+  "stage_index": 0,
+  "stage_start_t": 0,
+  "target_difficulty_steps": 3100000,
+  "threshold": 15.0,
+  "streak": 3,
+  "levels": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "mode": 0,
+  "rap": 0.25
+}
