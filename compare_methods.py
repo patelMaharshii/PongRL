@@ -130,30 +130,67 @@ def main() -> None:
         fig.savefig(os.path.join(args.out_dir, "summary_bars.png"), dpi=180)
         plt.close(fig)
 
-    # 4) Cross-difficulty robustness heatmap from eval suite
+    # 4) Cross-difficulty robustness heatmaps — mode 0 only, one col per RAP
     if not eval_df.empty:
-        summary_eval = eval_df.groupby(["method", "difficulty", "mode", "rap"], as_index=False).agg(
+        summary_eval = eval_df.groupby(
+            ["method", "difficulty", "mode", "rap"], as_index=False
+        ).agg(
             mean_reward=("reward", "mean"),
             std_reward=("reward", "std"),
             win_rate=("reward", lambda s: float(np.mean(np.array(s) > 0))),
         )
         summary_eval.to_csv(os.path.join(args.out_dir, "eval_suite_summary.csv"), index=False)
 
-        pivot = summary_eval[(summary_eval["mode"] == 0) & (summary_eval["rap"] == 0.25)].pivot(
-            index="method", columns="difficulty", values="mean_reward"
-        )
-        fig, ax = plt.subplots(figsize=(8, 4))
-        im = ax.imshow(pivot.values, aspect="auto")
-        ax.set_xticks(range(len(pivot.columns)), labels=[str(c) for c in pivot.columns])
-        ax.set_yticks(range(len(pivot.index)), labels=list(pivot.index))
-        ax.set_title("Cross-difficulty mean reward (mode=0, RAP=0.25)")
-        for i in range(pivot.shape[0]):
-            for j in range(pivot.shape[1]):
-                ax.text(j, i, f"{pivot.values[i, j]:+.1f}", ha="center", va="center", color="white")
-        fig.colorbar(im, ax=ax, shrink=0.8)
-        fig.tight_layout()
-        fig.savefig(os.path.join(args.out_dir, "cross_difficulty_heatmap.png"), dpi=180)
-        plt.close(fig)
+        mode0 = summary_eval[summary_eval["mode"] == 0]
+        raps  = sorted(mode0["rap"].unique())
+        methods = sorted(mode0["method"].unique())
+
+        all_vals = mode0["mean_reward"].values
+        vmin, vmax = float(np.nanmin(all_vals)), float(np.nanmax(all_vals))
+
+        for metric_col, metric_label in [("mean_reward", "Mean Reward"), ("win_rate", "Win Rate")]:
+            fig, axes = plt.subplots(
+                1, len(raps),
+                figsize=(4 * len(raps), 3.5),
+                squeeze=False,
+            )
+            fig.suptitle(
+                f"Cross-difficulty {metric_label} | Mode 0",
+                fontsize=12, fontweight="bold",
+            )
+            for col_j, rap in enumerate(raps):
+                ax = axes[0][col_j]
+                subset = mode0[mode0["rap"] == rap]
+                pivot = subset.pivot(
+                    index="method", columns="difficulty", values=metric_col
+                ).reindex(index=methods)
+
+                im = ax.imshow(
+                    pivot.values,
+                    aspect="auto",
+                    vmin=vmin, vmax=vmax,
+                    cmap="RdYlGn",
+                )
+                ax.set_xticks(range(len(pivot.columns)))
+                ax.set_xticklabels([f"D{c}" for c in pivot.columns], fontsize=9)
+                ax.set_yticks(range(len(pivot.index)))
+                ax.set_yticklabels(list(pivot.index), fontsize=9)
+                ax.set_title(f"RAP {rap:.2f}", fontsize=10)
+
+                for i in range(pivot.shape[0]):
+                    for j in range(pivot.shape[1]):
+                        val = pivot.values[i, j]
+                        txt = f"{val:+.1f}" if metric_col == "mean_reward" else f"{val:.0%}"
+                        ax.text(j, i, txt, ha="center", va="center",
+                                fontsize=8, color="black", fontweight="bold")
+
+                fig.colorbar(im, ax=ax, shrink=0.8)
+
+            fig.tight_layout()
+            fname = f"cross_difficulty_{metric_col}_mode0.png"
+            fig.savefig(os.path.join(args.out_dir, fname), dpi=180, bbox_inches="tight")
+            plt.close(fig)
+            print(f"[compare] saved {fname}")
 
     # 5) Markdown summary
     with open(os.path.join(args.out_dir, "comparison_report.md"), "w") as f:
