@@ -1,122 +1,141 @@
-# Pong RL — PPO Agent
+# PPO Pong: Curriculum vs Direct Training
 
-Train and evaluate a Proximal Policy Optimization (PPO) agent to play Atari Pong
-using Stable-Baselines3 and Gymnasium.
+A PPO agent trained on Atari Pong to compare two training strategies:
 
----
+- **Curriculum**: train on difficulty 0 first, then advance to difficulties 1, 2, and 3 once a performance threshold is met.
+- **Direct**: train on difficulty 3 from the start.
+
+***
 
 ## Project Structure
 
 ```
-pong-rl/
-├── config.py          # All hyperparameters and paths (edit this)
-├── train.py           # Training script
-├── evaluate.py        # Evaluation with live visualisation
+.
+├── config.py            All hyperparameters and paths
+├── train.py             Training script (curriculum or direct)
+├── evaluate.py          Evaluation with live visualisation
+├── compare_methods.py   Generate comparison plots and reports
+├── run_eval_suite.py    Cross-difficulty/RAP evaluation helper
 ├── utils/
-│   ├── __init__.py
-│   └── wrappers.py    # Environment factory (make_env, make_eval_env)
-├── models/            # Auto-created — model checkpoints saved here
-│   └── best/          # Best checkpoint (by EvalCallback)
-├── logs/              # TensorBoard event files
-├── requirements.txt
-└── README.md
+│   └── wrappers.py      Environment factory
+├── metrics/             Per-seed training and evaluation CSVs
+├── reports/             Aggregated plots and summary CSVs
+├── models/              Model checkpoints
+└── logs/                TensorBoard event files
 ```
 
----
+***
 
-## Quick Start
-
-### 1. Install Dependencies
+## Installation
 
 ```bash
-# Python 3.10+ recommended
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-
-# Install Atari ROMs (required by ALE)
-python -m ale_py.scripts.install_roms --accept-license
-# OR
 AutoROM --accept-license
 ```
 
-### 2. Train the Agent
+Requires Python 3.10+.
+
+***
+
+## Training
 
 ```bash
-python train.py
+# Curriculum (difficulty 0 -> 3, threshold-based progression)
+python train.py --method curriculum --seed 42
+
+# Direct (difficulty 3 from the start)
+python train.py --method direct --seed 42
+
+# Resume from a checkpoint
+python train.py --method curriculum --seed 42 --resume models/best/model
 ```
 
-Optional flags:
-```bash
-python train.py --timesteps 5000000         # Shorter run (reaches ~+5 reward)
-python train.py --resume models/best        # Resume from best checkpoint
-```
-
-Training logs are saved to `logs/`. Monitor with:
-```bash
-tensorboard --logdir logs/
-```
-
-### 3. Evaluate the Agent
+Training logs are written to `logs/`. Monitor with:
 
 ```bash
-python evaluate.py
+tensorboard --logdir logs
 ```
 
-This opens a **live dashboard** with:
-- Left:  the game playing in real-time (with reward overlay)
-- Top-right: bar chart of per-episode rewards (updates live)
-- Bottom-right: run statistics table
+Per-step metrics are saved to `metrics/train_{method}seed{seed}.csv` as training runs.
 
-Optional flags:
+***
+
+## Evaluation
+
 ```bash
-python evaluate.py --model models/ppo_pong_final   # Use final model
-python evaluate.py --episodes 10                   # Run 10 episodes
-python evaluate.py --no-video                      # Skip MP4 recording
-python evaluate.py --no-render                     # Headless (video only)
+python evaluate.py --model models/best/best_model
+
+# Options
+python evaluate.py --model models/best/best_model --episodes 20
+python evaluate.py --model models/best/best_model --difficulty 3 --no-render
 ```
 
----
+Runs a live dashboard with the game feed, per-episode rewards, and run statistics. Saves an MP4 by default.
 
-## Expected Training Progress
+***
 
-| Timesteps | Mean Reward | Notes                                   |
-|-----------|-------------|-----------------------------------------|
-| ~1M       | −18 to −15  | Agent barely reacts                     |
-| ~3M       | −10 to −5   | Agent starts tracking the ball          |
-| ~5M       | 0 to +10    | Wins rallies consistently               |
-| ~10M      | +15 to +21  | Near-optimal (perfect score = +21)      |
+## Cross-Difficulty Evaluation Suite
 
-Training 10M steps with 8 parallel envs:
-- **CPU only** (8-core): ~3–6 hours
-- **Single GPU**:       ~1–2 hours
+After training, run the evaluation suite to collect results across all difficulty/mode/RAP combinations:
 
----
+```bash
+python run_eval_suite.py \
+  --model models/best/best_model \
+  --method curriculum \
+  --seed 42 \
+  --out metrics/eval_curriculum_seed42.csv
+```
+
+***
+
+## Comparison Report
+
+Once you have metrics from both methods across multiple seeds:
+
+```bash
+python compare_methods.py --outdir reports/
+```
+
+Outputs written to `reports/`:
+
+| File | Description |
+|---|---|
+| `method_summary.csv` | Aggregated metrics per method |
+| `seed_summary.csv` | Per-seed metrics |
+| `training_curve_total_steps.png` | Learning curve over total steps |
+| `target_curve_difficulty3_steps.png` | Learning curve over difficulty-3 steps only |
+| `summary_bars.png` | Final reward, AUC, time-to-threshold, jumpstart |
+| `cross_difficulty_heatmap.png` | Robustness across difficulty/mode/RAP |
+| `eval_suite_summary.csv` | Aggregated evaluation suite results |
+| `comparison_report.md` | Written summary |
+
+***
 
 ## Configuration
 
-All settings live in `config.py`. Key options:
+All settings are in `config.py`. Key options:
 
-| Setting          | Default       | Description                        |
-|------------------|---------------|------------------------------------|
-| `N_ENVS`         | 8             | Parallel training environments     |
-| `TOTAL_TIMESTEPS`| 10_000_000    | Total environment steps to train   |
-| `LEARNING_RATE`  | 2.5e-4        | PPO learning rate                  |
-| `CLIP_RANGE`     | 0.1           | PPO clipping epsilon               |
-| `EVAL_FREQ`      | 50_000        | Steps between evaluations          |
-| `EVAL_EPISODES`  | 5             | Episodes per evaluate.py run       |
-| `RECORD_VIDEO`   | True          | Save MP4 of evaluation             |
+| Setting | Default | Description |
+|---|---|---|
+| `N_ENVS` | 8 | Parallel training environments |
+| `TOTAL_TIMESTEPS` | 25,000,000 | Total environment steps |
+| `LEARNING_RATE` | 2.5e-4 | PPO learning rate |
+| `CLIP_RANGE` | 0.1 | PPO clipping epsilon |
+| `EVAL_FREQ` | 50,000 | Steps between evaluations |
+| `N_EVAL_EPISODES` | 10 | Episodes per evaluation |
+| `CURRICULUM_THRESHOLD` | 15.0 | Mean reward to advance difficulty |
+| `CURRICULUM_STREAK` | 2 | Consecutive evals above threshold to advance |
+| `CURRICULUM_MIN_STEPS` | 1,000,000 | Minimum steps per difficulty stage |
+| `CURRICULUM_MAX_STEPS` | 10,000,000 | Maximum steps before forcing advancement |
 
----
+***
 
 ## How It Works
 
-1. **Env wrappers** (`utils/wrappers.py`):  
-   SB3's `make_atari_env` auto-applies grayscale, 84×84 resize, frame-skip (k=4),
-   reward clipping, and EpisodicLifeEnv. `VecFrameStack` stacks 4 frames as channels.
+**Environment**: `ALE/Pong-v5` with grayscale, 84x84 resize, frame-skip 4, reward clipping, and 4-frame stacking via `VecFrameStack`.
 
-2. **PPO** (`train.py`):  
-   Uses a CNN policy (Nature DQN architecture: 3 conv layers → 512-unit FC → actor/critic heads).
-   8 parallel envs collect 128 steps each per rollout → 4 epochs of gradient updates.
+**Policy**: CNN policy (Nature DQN architecture — 3 conv layers, 512-unit FC, shared actor-critic heads).
 
-3. **Visualisation** (`evaluate.py`):  
-   Grabs `rgb_array` frames from the underlying ALE env, overlays stats with OpenCV,
-   and updates a Matplotlib dashboard in real time. Optionally encodes frames to MP4.
+**Curriculum logic**: The `AdaptiveCurriculumCallback` in `train.py` evaluates the agent every `EVAL_FREQ` steps. If the mean reward exceeds `CURRICULUM_THRESHOLD` for `CURRICULUM_STREAK` consecutive evaluations and at least `CURRICULUM_MIN_STEPS` have elapsed in the current stage, the environment is rebuilt at the next difficulty level.
