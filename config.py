@@ -36,7 +36,7 @@ class Config:
     CURRICULUM_LEVELS       = [0, 1, 2, 3]
     CURRICULUM_THRESHOLD    = 15.0
     CURRICULUM_STREAK       = 2          # consecutive evals above threshold
-    CURRICULUM_MIN_STEPS    = 2_000_000  # minimum steps at a difficulty before advancing
+    CURRICULUM_MIN_STEPS    = 1_000_000  # minimum steps at a difficulty before advancing
     CURRICULUM_MAX_STEPS    = 10_000_000 # force-advance cap per difficulty
     CURRICULUM_TARGET_DIFF  = 3
 

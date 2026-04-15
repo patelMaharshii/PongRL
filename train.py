@@ -80,6 +80,7 @@ class AdaptiveCurriculumCallback(BaseCallback):
 
         self.eval_env = None
         self.header_written = False
+        self._last_eval_timestep = 0
 
     def _on_training_start(self) -> None:
         os.makedirs(os.path.dirname(self.metrics_csv_path), exist_ok=True)
@@ -120,7 +121,17 @@ class AdaptiveCurriculumCallback(BaseCallback):
             mode=self.mode,
             repeat_action_probability=self.rap,
         )
-        self.model.set_env(new_env)
+        old_env = self.model.env
+        self.model.set_env(new_env)  # SB3 wraps in VecTransposeImage here
+        old_env.close()
+
+        # Reset through self.model.env so the obs goes through
+        # VecTransposeImage and comes back as (N, C, H, W) = (8,4,84,84)
+        reset_obs = self.model.env.reset()
+        self.model._last_obs = reset_obs
+        self.model._last_episode_starts = np.ones(
+            (self.cfg.N_ENVS,), dtype=bool
+        )
 
     def _set_eval_env_difficulty(self, difficulty: int):
         if self.eval_env is not None:
@@ -173,8 +184,10 @@ class AdaptiveCurriculumCallback(BaseCallback):
             json.dump(payload, f, indent=2)
 
     def _on_step(self) -> bool:
-        if self.n_calls % self.eval_freq != 0:
+        if self.num_timesteps - self._last_eval_timestep < self.eval_freq:
             return True
+
+        self._last_eval_timestep = self.num_timesteps 
 
         mean_reward, std_reward, win_rate = self._run_eval(self.current_difficulty)
         stage_steps = self.num_timesteps - self.stage_start_t

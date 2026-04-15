@@ -1,0 +1,20 @@
+{
+  "event": "advance",
+  "method": "curriculum",
+  "seed": 44,
+  "num_timesteps": 25000968,
+  "current_difficulty": 1,
+  "stage_index": 1,
+  "stage_start_t": 25000968,
+  "target_difficulty_steps": 0,
+  "threshold": 15.0,
+  "streak": 0,
+  "levels": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "mode": 0,
+  "rap": 0.25
+}
