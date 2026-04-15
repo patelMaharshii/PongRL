@@ -1,5 +1,7 @@
 # PPO Pong: Curriculum vs Direct Training
 
+Contributors: Maharshii Patel, Jiwon Lee, Jacob Lee, Guojia La 
+
 A PPO agent trained on Atari Pong to compare two training strategies:
 
 - **Curriculum**: train on difficulty 0 first, then advance to difficulties 1, 2, and 3 once a performance threshold is met.
